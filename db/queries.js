@@ -22,6 +22,8 @@
 // MUST USE: native `mongodb` driver only. No Mongoose, no ODM.
 // =============================================================================
 
+
+
 const { ObjectId } = require('mongodb');
 
 /**
@@ -44,9 +46,15 @@ const { ObjectId } = require('mongodb');
  * Hint: insertOne. Nothing fancy.
  */
 async function signupUser(db, userData) {
-  // TODO: implement
-  throw new Error('signupUser not implemented');
+  const a1 = await db.collection('users').insertOne({
+    email:        userData.email,
+    passwordHash: userData.passwordHash,
+    name:         userData.name,
+    createdAt:    new Date(),
+  });
+  return { insertedId: result.insertedId };
 }
+  throw new Error('signupUser not implemented');
 
 /**
  * Query 2: loginFindUser
@@ -64,7 +72,8 @@ async function signupUser(db, userData) {
  * Hint: findOne with an exact-match filter.
  */
 async function loginFindUser(db, email) {
-  // TODO: implement
+   const u2 = await db.collection('users').findOne({ email: email });
+  return user; 
   throw new Error('loginFindUser not implemented');
 }
 
@@ -84,8 +93,17 @@ async function loginFindUser(db, email) {
  * Hint: find with two filter conditions, then .sort().toArray().
  */
 async function listUserProjects(db, ownerId) {
-  // TODO: implement
-  throw new Error('listUserProjects not implemented');
+  async function listUserProjects(db, ownerId) {
+  const projects = await db.collection('projects')
+    .find({
+      userId:   ownerId,    
+      archived: false,        
+    })
+    .sort({ createdAt: -1 }) 
+    .toArray();
+  return projects;
+  }
+  throw new Error('project not user');
 }
 
 /**
@@ -102,9 +120,17 @@ async function listUserProjects(db, ownerId) {
  * Hint: insertOne again — just remember to add the defaults yourself.
  */
 async function createProject(db, projectData) {
-  // TODO: implement
-  throw new Error('createProject not implemented');
+  const w2 = await db.collection('projects').insertOne({
+    userId:      projectData.ownerId,
+    name:        projectData.name,
+    description: projectData.description ?? null,
+    archived:    false,       
+    createdAt:   new Date(),   
+  });
+  return { insertedId: result.insertedId };
 }
+
+  throw new Error('createProject not implemented');
 
 /**
  * Query 5: archiveProject
@@ -122,9 +148,16 @@ async function createProject(db, projectData) {
  * Hint: updateOne with the $set operator.
  */
 async function archiveProject(db, projectId) {
-  // TODO: implement
-  throw new Error('archiveProject not implemented');
+  const r1= await db.collection('projects').updateOne(
+    { _id: projectId },             
+    { $set: { archived:true}}     
+  );
+  return {
+    matchedCount:result.matchedCount,
+    modifiedCount:result.modifiedCount,
+  };
 }
+
 
 /**
  * Query 6: listProjectTasks
@@ -147,6 +180,9 @@ async function listProjectTasks(db, projectId, status) {
   // TODO: implement
   throw new Error('listProjectTasks not implemented');
 }
+
+const { ObjectId } = require('mongodb');
+
 
 /**
  * Query 7: createTask
